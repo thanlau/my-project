@@ -26,26 +26,41 @@ public class SequOperator extends Operator {
 			return res;
 		}
 //		System.out.println("evaluate the tree");
-		System.out.println("occs1" + occs1);
-		System.out.println("occs2" + occs2);
-		
+//		System.out.println("occs1" + occs1);
+//		System.out.println("occs2" + occs2);
 		for(int key: occs1.keySet()){
 			if(!occs2.containsKey(key))
 				continue;
 			List<Occurrence> li1 = occs1.get(key);
 			List<Occurrence> li2 = occs2.get(key);
 			for(Occurrence occ1: li1){
-				if(occ1.end < li2.get(li2.size()-1).start){
-					if(!res.containsKey(key)){
-						res.put(key, new ArrayList<Occurrence>());
+				for(Occurrence occ2: li2){
+					if(occ1.end < occ2.start){
+						if(!res.containsKey(key)){
+							res.put(key, new ArrayList<Occurrence>());
+						}
+						res.get(key).add(merge(occ1, occ2));
 					}
-					res.get(key).add(merge(occ1, li2.get(li2.size()-1)));
-					//System.out.println("sequ res" + res);
 				}
 			}
-//			System.out.println("hit");
-//			System.out.println("before op.occs: "+ op.occs);
-//			System.out.println("before res: "+ res);
+		
+//		for(int key: occs1.keySet()){
+//			if(!occs2.containsKey(key))
+//				continue;
+//			List<Occurrence> li1 = occs1.get(key);
+//			List<Occurrence> li2 = occs2.get(key);
+//			for(Occurrence occ1: li1){
+//				if(occ1.end < li2.get(li2.size()-1).start){
+//					if(!res.containsKey(key)){
+//						res.put(key, new ArrayList<Occurrence>());
+//					}
+//					res.get(key).add(merge(occ1, li2.get(li2.size()-1)));
+//					//System.out.println("sequ res" + res);
+//				}
+//			}
+////			System.out.println("hit");
+////			System.out.println("before op.occs: "+ op.occs);
+////			System.out.println("before res: "+ res);
 //			if(op.occs.get(key) != null) {
 //				for(int i = 0; i < op.occs.get(key).size(); i++) {
 //					if(res.get(key).contains(op.occs.get(key).get(i))) {
