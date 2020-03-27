@@ -8,69 +8,156 @@ import java.util.Map;
 import evaluation.CostModel;
 import model.incidentree.OpNode;
 import model.log.Activity;
+import model.log.LogRecord;
 import model.log.ProbModel;
 
 public class SequOperator extends Operator {
 	public  Map<Integer, List<Occurrence>> execute(
 			Map<Integer, List<Occurrence>> occs1, Map<Integer, List<Occurrence>> occs2, OpNode op){
-		Map<Integer, List<Occurrence>> res = new HashMap<Integer, List<Occurrence>>();
-		System.out.println("op.occ: "+ op.occs);
-		if(occs1.size() == 0 || occs2.size() == 0){
+		
+		Map<Integer, List<Occurrence>> res = op.occs;//new HashMap<Integer, List<Occurrence>>();
+		Map<Integer, List<Occurrence>> verify = new HashMap<Integer, List<Occurrence>>();
+		
+		ArrayList<Occurrence> left_buffer = op.left.buffer;
+		ArrayList<Occurrence> right_buffer = op.right.buffer;
+		
+		//if left buffer not empty and right occs2 is empty, no need to progress.
+		if(!left_buffer.isEmpty() && occs2.size() == 0) {
+			left_buffer.clear();
+		}
+		
+		//if right buffer not empty, and left occs contains nothing, then no need to progress
+		if(!right_buffer.isEmpty() && occs1.size() == 0) {
+			right_buffer.clear();
+		}
+		
+		//Actually no need to keep this check. remove this line maybe?
+		//if(occs1.size() == 0 || occs2.size() == 0 || op.changeFlag == 0){
+		//	return res;
+		//}
+		
+		if(right_buffer.isEmpty() && left_buffer.isEmpty()) {
 			return res;
 		}
 		
-//		if(occs2.size() == 0) {
-//			for(int key: occs1.keySet()){
-//				for(Occurrence occ1: occs1.get(key)) {
-//					occ1.occ_new = 0;
-//				}			
-//			}
-//			return res;
-//		}
-		int deltaSide = op.findDeltaFlag(op);
-//		System.out.println("deltaSide: " + deltaSide);
-
-		if(deltaSide == 0) {
+		//if right still not empty, process it!
+		if(!right_buffer.isEmpty()) {
+			Occurrence r = right_buffer.get(0);
+			int key = (int) r.wid; 
 			
-//			System.out.println("deltaSide: " + deltaSide);
-//			System.out.println("\n");
-			return res;
+			//For debugging purpose
+			verify.put(key, new ArrayList<Occurrence>());
+			
+			//right matches left! Only perform action if left contains the key!
+			if(occs1.containsKey(key)) {
+				for(Occurrence occ1: occs1.get(key)){
+					if(occ1.end < r.start){
+						if(!res.containsKey(key)){
+							res.put(key, new ArrayList<Occurrence>());
+						}
+						res.get(key).add(merge(occ1, r));
+						
+						//For debugging purpose
+						verify.get(key).add(merge(occ1, r));
+					}
+				}
+			}
+			right_buffer.clear();
+		} else if(!left_buffer.isEmpty()) {
+			Occurrence l = left_buffer.get(0);
+			int key = (int) l.wid; 
+			
+			//For debugging purpose
+			verify.put(key, new ArrayList<Occurrence>());
+			
+			//right matches left! Only perform action if left contains the key!
+			if(occs1.containsKey(key)) {
+				for(Occurrence occ2: occs2.get(key)){
+					if(l.end < occ2.start){
+						if(!res.containsKey(key)){
+							res.put(key, new ArrayList<Occurrence>());
+						}
+						res.get(key).add(merge(occ2, l));
+						verify.get(key).add(merge(occ2, l));
+					}
+				}
+			}
+			left_buffer.clear();
 		}
-		System.out.println("occs1" + occs1);
-		System.out.println("occs2" + occs2);
-		for(int key: occs1.keySet()){
+		
+		
+		
+		//if(left_buffer.isEmpty() || right_buffer.isEmpty()) {
+		//feel like we dont care about left at all!
+		//if(right_buffer.isEmpty()) {
+		//	return op.occs;
+		//}
+		
+		/*for(int key: occs1.keySet()){
 			if(!occs2.containsKey(key))
 				continue;
 			List<Occurrence> li1 = occs1.get(key);
 			List<Occurrence> li2 = occs2.get(key);
 			for(Occurrence occ1: li1){
-				for(int i = li2.size() - 1; i >= 0; i--) {
-					Occurrence occ2 = li2.get(i);
-//				for(Occurrence occ2: li2){
-//					
-					System.out.println("occ1: " + occ1);
-					System.out.println("occ2: " + occ2);
-							
+				for(Occurrence occ2: li2){
 					if(occ1.end < occ2.start){
 						if(!res.containsKey(key)){
 							res.put(key, new ArrayList<Occurrence>());
 						}
-						Occurrence tmp  = merge(occ1, occ2);
-						tmp.occ_new = 1;
-						res.get(key).add(tmp);	
-						System.out.println("res: " + res);
-						System.out.println("\n");		
+						res.get(key).add(merge(occ1, occ2));
 					}
-					
-					occ1.occ_new = 0;
-					occ2.occ_new = 0;
 				}
-				
 			}
+		
+//		for(int key: occs1.keySet()){
+//			if(!occs2.containsKey(key))
+//				continue;
+//			List<Occurrence> li1 = occs1.get(key);
+//			List<Occurrence> li2 = occs2.get(key);
+//			for(Occurrence occ1: li1){
+//				if(occ1.end < li2.get(li2.size()-1).start){
+//					if(!res.containsKey(key)){
+//						res.put(key, new ArrayList<Occurrence>());
+//					}
+//					res.get(key).add(merge(occ1, li2.get(li2.size()-1)));
+//					//System.out.println("sequ res" + res);
+//				}
+//			}
+////			System.out.println("hit");
+////			System.out.println("before op.occs: "+ op.occs);
+////			System.out.println("before res: "+ res);
+//			if(op.occs.get(key) != null) {
+//				for(int i = 0; i < op.occs.get(key).size(); i++) {
+//					if(res.get(key).contains(op.occs.get(key).get(i))) {
+//						continue;
+//					}
+//					res.get(key).add(op.occs.get(key).get(i));
+//				}
+//			}
+//			System.out.println("hello");
+//			System.out.println("after op.occs: "+ op.occs);
+//			System.out.println("after res: "+ res);
+			//Map<Integer, List<Occurrence>> res
+			//HashMap<Integer, List<Occurrence>> occs;
+//			System.out.println("op.occs" + op.occs.get(key));
+			//TODO: Remove the duplicates
+
+					
+//			for(Occurrence occ1: li1){
+//				for(Occurrence occ2: li2){
+//					if(occ1.end < occ2.start){
+//						if(!res.containsKey(key)){
+//							res.put(key, new ArrayList<Occurrence>());
+//						}
+//						res.get(key).add(merge(occ1, occ2));
+//						System.out.println("sequ res" + res);
+//					}
+//				}
 			
 		}
-//		System.out.println("res:  " + res);
-//		System.err.println("\n");
+		*/
+		System.out.println("Executed Block OCCS: " + verify);
+		System.out.println("Final reutrned OCCS: " + res + "\n");
 		return res;
 	}
 

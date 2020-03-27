@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import model.incident.Occurrence;
@@ -121,10 +122,11 @@ public class Log {
 		
 	}
 
-	public Map<Integer, List<Occurrence>> filter(String name, Map<Integer, List<Occurrence>> occs) {
+	public Map<Integer, List<Occurrence>> filter(String name, Map<Integer, List<Occurrence>> occs, ArrayList<Occurrence> buffer) {
 		if(actiIndex.containsKey(name)){
 			return actiIndex.get(name);
 		}
+		
 //		System.out.println("Before Occs size: " + occs.size());
 		//Map<Integer, List<Occurrence>> res = new HashMap<Integer, List<Occurrence>>();
 //		System.out.println("Before records size: " + records.size());
@@ -133,8 +135,10 @@ public class Log {
 			if(!occs.containsKey(r.wid)){
 				occs.put(r.wid, new ArrayList<Occurrence>());
 			}
-			occs.get(r.wid).add(new Occurrence(r));
-			System.out.println("In log filter, Deal with lsn: " + r.lsn);
+			Occurrence oc = new Occurrence(r);
+			occs.get(r.wid).add(oc);
+			buffer.add(oc);//add it to buffer!
+			//System.out.println("In log filter, Deal with lsn: " + r.lsn);
 		}
 //		for(LogRecord r: records){
 //			if(r.actiName.equals(name)){
@@ -145,7 +149,6 @@ public class Log {
 ////				System.out.println("Add occ to list: " + r.lsn);
 //				occs.get(r.wid).add(new Occurrence(r));
 ////				System.out.println("In log filter, Deal with lsn: " + r.lsn + " Occs size: " + occs.get(1).toString());
-//
 //			}
 //		}
 //		System.out.println( " Occs: " + occs.get(1).toString());

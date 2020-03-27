@@ -19,16 +19,17 @@ public class Main {
 	
 	public static void main(String[] args){
 		//1. load instance/pattern 
-		String[] qs1 = {"read:open_trust:todo"};//generateIncident('*', 1, 1);
+		String[] qs1 = {"read:open_trust:todo"};
 		List<LogRecord> existsrecords = new ArrayList<LogRecord>();
 		List<LogRecord> deltarecords = new ArrayList<LogRecord>();
 		List<List<LogRecord>> tempRecords = new ArrayList<List<LogRecord>>();
 		Incident incident = new Incident(qs1[0]);
-//		System.out.println(incident.tree.toString());
 		BufferedReader br = null;
+		
+		System.out.println("Tree Structure Pretty Print: ");
+		incident.tree.prettyPrint();
 	    try {
-//	    	br = new BufferedReader(new FileReader("data/sample_10k.txt"));
-	    	br = new BufferedReader(new FileReader("data/sample_log.txt"));
+	    	br = new BufferedReader(new FileReader("IncrimentalMS-master/data/sample_log.txt"));
 	        String line = br.readLine();
 	        //System.out.println(line);
 	        int count = 0;
@@ -38,11 +39,9 @@ public class Main {
 	        		line = br.readLine();
 	        		continue;
 	        	}
+	        	System.err.println("\n\n>>> Process Line: " + line);
+	        	
 	        	LogRecord record = new LogRecord(line);
-//	        	if(record.lsn != count + 1){
-//	        		System.err.println("Oops! LSN " + record.lsn + " is not correct!");
-//	        		break;
-//	        	}
 	        	deltarecords.add(record);
 	        	tempRecords.add(deltarecords);
 	        	Log log = new Log();
@@ -50,8 +49,7 @@ public class Main {
 	        	QueryEngine.queryEngine.log = log;
 				QueryEngine.queryEngine.query(incident);
 
-//	        	test(qs1,3, incident);	 
-	        	//testSeqOp(log);
+
 //	        	existsrecords.add(record);
 	        	deltarecords = new ArrayList<LogRecord>() ;
 	        	
@@ -63,14 +61,7 @@ public class Main {
 	            line = br.readLine();
 //	            System.out.println(record.toString());
 	        }
-//	        for(int i = 0 ; i < tempRecords.size(); i++) {
-//		        Log log = new Log();
-//	        	log.records=tempRecords.get(i);
-//	        	QueryEngine.queryEngine.log = log;
-//				QueryEngine.queryEngine.query(incident);
-//	        }
-//	        System.out.println("# of Lines processed: " + count);
-////	        System.out.println(incident.tree.toString());
+
 	        long t2 = System.currentTimeMillis();
 	        System.out.println("running time: " + (t2 - t1));
 	        //testRuntime(qs1, 3);

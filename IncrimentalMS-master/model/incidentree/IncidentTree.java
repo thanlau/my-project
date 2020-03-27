@@ -182,4 +182,37 @@ public class IncidentTree implements Serializable{
 		
 		return res;
 	}
+	
+		
+	public void traversePreOrder(StringBuilder sb, String padding, String pointer, IncidentTreeNode node) {
+		if (node != null) {
+			sb.append(padding);
+			sb.append(pointer);
+			if (node.getType() == NodeType.OP) {
+				sb.append("(op)" + node.name);
+			} else {
+				sb.append(node.name);
+			}
+			sb.append("\n");
+			
+			StringBuilder paddingBuilder = new StringBuilder(padding);
+			paddingBuilder.append("│  ");
+			
+			String paddingForBoth = paddingBuilder.toString();
+			String pointerForRight = "└──";
+			String pointerForLeft = (node.right != null) ? "├──" : "└──";
+			traversePreOrder(sb, paddingForBoth, pointerForLeft, node.left);
+			traversePreOrder(sb, paddingForBoth, pointerForRight, node.right);
+		}
+	}
+	
+	public void prettyPrint() {
+	    StringBuilder sb = new StringBuilder();
+	    traversePreOrder(sb, "", "", this.root);
+	    System.out.println(sb.toString());
+	}
+	
+	
+	
+	
 }

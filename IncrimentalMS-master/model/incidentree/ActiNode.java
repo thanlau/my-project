@@ -40,14 +40,10 @@ public class ActiNode extends IncidentTreeNode {
 	public void run() {
 		//System.err.println("[Debug: query thread] Acti Node " + name);
 		
-		int oldHashCode = this.occs.hashCode();
-		this.occs = QueryEngine.queryEngine.log.filter(name, this.occs);
-		int newHashCode = this.occs.hashCode();
-		if(oldHashCode != newHashCode) {
-			this.changeFlag = 1;
-		}else {
-			this.changeFlag = 0;
-		}
+		this.occs = QueryEngine.queryEngine.log.filter(name, this.occs, this.buffer);
+		
+		//System.out.println("queue: " + this.buffer);
+		
 //		System.out.println("OCCS "+ this.occs);
 		//for optimizer performance analysis
 		//should be commented when testing efficiency

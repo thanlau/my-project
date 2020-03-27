@@ -64,10 +64,11 @@ public class OpNode extends IncidentTreeNode{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		//System.out.println(left.name);
+		//System.out.println(right.name);
 		Operator op = QueryEngine.queryEngine.operators.get(name);
 		this.occs = op.execute(left.occs, right == null ? null: right.occs, this);
-
+		
 		for(List<Occurrence> li: occs.values()){
 			this.size += li.size();
 		}
