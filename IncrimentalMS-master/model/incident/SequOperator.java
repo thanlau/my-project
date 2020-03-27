@@ -14,83 +14,63 @@ public class SequOperator extends Operator {
 	public  Map<Integer, List<Occurrence>> execute(
 			Map<Integer, List<Occurrence>> occs1, Map<Integer, List<Occurrence>> occs2, OpNode op){
 		Map<Integer, List<Occurrence>> res = new HashMap<Integer, List<Occurrence>>();
-		
-		if(occs1.size() == 0 || occs2.size() == 0 || op.changeFlag == 0){
+		System.out.println("op.occ: "+ op.occs);
+		if(occs1.size() == 0 || occs2.size() == 0){
 			return res;
 		}
 		
+//		if(occs2.size() == 0) {
+//			for(int key: occs1.keySet()){
+//				for(Occurrence occ1: occs1.get(key)) {
+//					occ1.occ_new = 0;
+//				}			
+//			}
+//			return res;
+//		}
 		int deltaSide = op.findDeltaFlag(op);
-		
+//		System.out.println("deltaSide: " + deltaSide);
+
 		if(deltaSide == 0) {
+			
 //			System.out.println("deltaSide: " + deltaSide);
+//			System.out.println("\n");
 			return res;
 		}
-//		System.out.println("evaluate the tree");
-//		System.out.println("occs1" + occs1);
-//		System.out.println("occs2" + occs2);
+		System.out.println("occs1" + occs1);
+		System.out.println("occs2" + occs2);
 		for(int key: occs1.keySet()){
 			if(!occs2.containsKey(key))
 				continue;
 			List<Occurrence> li1 = occs1.get(key);
 			List<Occurrence> li2 = occs2.get(key);
 			for(Occurrence occ1: li1){
-				for(Occurrence occ2: li2){
+				for(int i = li2.size() - 1; i >= 0; i--) {
+					Occurrence occ2 = li2.get(i);
+//				for(Occurrence occ2: li2){
+//					
+					System.out.println("occ1: " + occ1);
+					System.out.println("occ2: " + occ2);
+							
 					if(occ1.end < occ2.start){
 						if(!res.containsKey(key)){
 							res.put(key, new ArrayList<Occurrence>());
 						}
-						res.get(key).add(merge(occ1, occ2));
+						Occurrence tmp  = merge(occ1, occ2);
+						tmp.occ_new = 1;
+						res.get(key).add(tmp);	
+						System.out.println("res: " + res);
+						System.out.println("\n");		
 					}
-				}
-			}
-		
-//		for(int key: occs1.keySet()){
-//			if(!occs2.containsKey(key))
-//				continue;
-//			List<Occurrence> li1 = occs1.get(key);
-//			List<Occurrence> li2 = occs2.get(key);
-//			for(Occurrence occ1: li1){
-//				if(occ1.end < li2.get(li2.size()-1).start){
-//					if(!res.containsKey(key)){
-//						res.put(key, new ArrayList<Occurrence>());
-//					}
-//					res.get(key).add(merge(occ1, li2.get(li2.size()-1)));
-//					//System.out.println("sequ res" + res);
-//				}
-//			}
-////			System.out.println("hit");
-////			System.out.println("before op.occs: "+ op.occs);
-////			System.out.println("before res: "+ res);
-//			if(op.occs.get(key) != null) {
-//				for(int i = 0; i < op.occs.get(key).size(); i++) {
-//					if(res.get(key).contains(op.occs.get(key).get(i))) {
-//						continue;
-//					}
-//					res.get(key).add(op.occs.get(key).get(i));
-//				}
-//			}
-//			System.out.println("hello");
-//			System.out.println("after op.occs: "+ op.occs);
-//			System.out.println("after res: "+ res);
-			//Map<Integer, List<Occurrence>> res
-			//HashMap<Integer, List<Occurrence>> occs;
-//			System.out.println("op.occs" + op.occs.get(key));
-			//TODO: Remove the duplicates
-
 					
-//			for(Occurrence occ1: li1){
-//				for(Occurrence occ2: li2){
-//					if(occ1.end < occ2.start){
-//						if(!res.containsKey(key)){
-//							res.put(key, new ArrayList<Occurrence>());
-//						}
-//						res.get(key).add(merge(occ1, occ2));
-//						System.out.println("sequ res" + res);
-//					}
-//				}
+					occ1.occ_new = 0;
+					occ2.occ_new = 0;
+				}
+				
+			}
 			
 		}
-
+//		System.out.println("res:  " + res);
+//		System.err.println("\n");
 		return res;
 	}
 
