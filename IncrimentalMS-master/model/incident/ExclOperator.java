@@ -7,92 +7,103 @@ import java.util.List;
 import java.util.Map;
 
 import evaluation.CostModel;
+import main.Main;
 import model.incidentree.OpNode;
 import model.log.Activity;
 import model.log.ProbModel;
 
 public class ExclOperator extends Operator {
 	public Map<Integer, List<Occurrence>> execute(Map<Integer, List<Occurrence>> occs1, Map<Integer, List<Occurrence>> occs2, OpNode op){
-//		Map<Integer, List<Occurrence>> res = new HashMap<Integer, List<Occurrence>>(occs1);
-//		if(occs1 == null){
-//			return occs2;
-//		}else if(occs2 == null){
-//			return occs1;
-//		}
-//		for(int key: occs2.keySet()){
-//			if(!res.containsKey(key)){
-//				res.put(key, new ArrayList<Occurrence>());
-//			}
-//			res.get(key).addAll(occs2.get(key));
-//		}
+
 		
-		if(occs1 == null) {
-			return occs2;
-		}else if(occs2 == null) {
-			return occs1;
-		}
-		
-		Map<Integer, List<Occurrence>> res = op.occs;
-		Map<Integer, List<Occurrence>> verify = new HashMap<Integer, List<Occurrence>>();
+		Map<Integer, List<Occurrence>> res = op.occs;//new HashMap<Integer, List<Occurrence>>();
 		
 		ArrayList<Occurrence> left_buffer = op.left.buffer;
 		ArrayList<Occurrence> right_buffer = op.right.buffer;
-		
-		//if left buffer not empty and right occs2 is empty, no need to progress.
-		if(!left_buffer.isEmpty() && occs2.size() == 0) {
-			left_buffer.clear();
-		}
-		
-		//if right buffer not empty, and left occs contains nothing, then no need to progress
-		if(!right_buffer.isEmpty() && occs1.size() == 0) {
-			right_buffer.clear();
-		}
-		
-		//if(occs1.size() == 0 || occs2.size() == 0 || op.changeFlag == 0){
-		//	return res;
-		//}
-		
+		System.out.println("count"+ Main.count);
+		System.out.println("left buffer"+ left_buffer);
+		System.out.println("right buffer"+ right_buffer);
+		System.out.println("op.occs"+ res);
 		if(right_buffer.isEmpty() && left_buffer.isEmpty()) {
 			return res;
 		}
 		
+		//if right still not empty, process it!
 		if(!right_buffer.isEmpty()) {
 			Occurrence r = right_buffer.get(0);
 			int key = (int) r.wid; 
-			
-			//For debugging purpose
-			verify.put(key, new ArrayList<Occurrence>());
+			if(!res.containsKey(key)) {
+				res.put(key, new ArrayList<Occurrence>());
+			}
+			res.get(key).add(r);
+
+
+			System.out.println("right res:"+ res.toString());
+			System.out.println("\n");
 			
 			//right matches left! Only perform action if left contains the key!
-			
-			for(Occurrence occ1: occs1.get(key)){
-				if(!res.containsKey(key)){
-					res.put(key, new ArrayList<Occurrence>());
-					}
-				res.get(key).add(r);
-						
-						//For debugging purpose
-				verify.get(key).add(r);
-			}
+//			if(occs1.containsKey(key)) {
+//				
+//				for(Occurrence occ1: occs1.get(key)){
+//					if(!res.containsKey(key)){
+//						res.put(key, new ArrayList<Occurrence>());
+//						}
+//
+//					if(!res.get(key).contains(occ1)) {
+//						res.get(key).add(occ1);
+//					}
+//					if(!res.get(key).contains(r)) {
+//					res.get(key).add(r);
+//					}
+//
+//				}
+//			}
 			right_buffer.clear();
-		}else if(!left_buffer.isEmpty()) {
+		} else if(!left_buffer.isEmpty()) {
 			Occurrence l = left_buffer.get(0);
 			int key = (int) l.wid; 
-			
-			//For debugging purpose
-			verify.put(key, new ArrayList<Occurrence>());
-			
-			//right matches left! Only perform action if left contains the key!
-			for(Occurrence occ2: occs2.get(key)){
-				if(!res.containsKey(key)){
-					res.put(key, new ArrayList<Occurrence>());
-				}
-				res.get(key).add(l);
-				verify.get(key).add(l);
+			if(!res.containsKey(key)) {
+				res.put(key, new ArrayList<Occurrence>());
 			}
+			res.get(key).add(l);
+
+			System.out.println("left res:"+ res.toString());
+			System.out.println("\n");
+
+
+//			//right matches left! Only perform action if left contains the key!
+//			if(occs2.containsKey(key)) {
+//				for(Occurrence occ2: occs2.get(key)){
+//					if(!res.containsKey(key)){
+//						res.put(key, new ArrayList<Occurrence>());
+//						}
+//					if(!res.get(key).contains(occ2)) {
+//						res.get(key).add(occ2);
+//					}
+//					if(!res.get(key).contains(l)) {
+//					res.get(key).add(l);
+//					}
+//
+//				}
+//			}
 			left_buffer.clear();
 		}
 		
+		return res;
+	}
+	public Map<Integer, List<Occurrence>> execute(Map<Integer, List<Occurrence>> occs1, Map<Integer, List<Occurrence>> occs2){
+		Map<Integer, List<Occurrence>> res = new HashMap<Integer, List<Occurrence>>(occs1);
+		if(occs1 == null){
+			return occs2;
+		}else if(occs2 == null){
+			return occs1;
+		}
+		for(int key: occs2.keySet()){
+			if(!res.containsKey(key)){
+				res.put(key, new ArrayList<Occurrence>());
+			}
+			res.get(key).addAll(occs2.get(key));
+		}
 		return res;
 	}
 
